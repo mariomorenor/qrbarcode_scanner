@@ -6,14 +6,6 @@ from pyzbar import pyzbar
 from threading import Timer
 
 
-class MessageBox():
-
-    def __init__(self, message=None) -> None:
-        self.window = Toplevel()
-        Label(self.window, text=message).pack(expand=1, fill="both")
-        self.window.mainloop()
-
-
 class MainApp:
 
     window_width = 1000
