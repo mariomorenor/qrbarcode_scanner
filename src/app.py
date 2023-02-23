@@ -19,7 +19,7 @@ class MainApp:
 
     def __init__(self) -> None:
 
-        self.users = odoo.get_users()
+        self.get_users()
 
         self.main_window = Tk()
         self.main_window.bind('<Escape>', lambda e: self.main_window.quit())
@@ -27,6 +27,10 @@ class MainApp:
         self.set_styles()
         self.GUI()
         self.main_window.mainloop()
+
+    def get_users(self):
+        print("ss")
+        self.users = odoo.get_users()
 
     def GUI(self):
 
@@ -78,6 +82,9 @@ class MainApp:
             self.panel_data, width=45, font=('Arial', 20, 'normal'))
         self.input_message_info.grid(row=5, column=1, sticky=EW, pady=50)
 
+        ttk.Button(self.panel_data, text="ACTUALIZAR", style="update.TButton",
+                   command=lambda: self.get_users()).grid(row=6, column=0, ipadx=15, ipady=10, sticky=EW)
+
         panel = Frame(self.main_window)
         panel.pack(pady=10)
 
@@ -125,33 +132,32 @@ class MainApp:
                 o.start()
                 self.show_info(user)
                 break
-        
-        t = Timer(self.time_to_reset_gui, self.reset_barcode_info )
+
+        t = Timer(self.time_to_reset_gui, self.reset_barcode_info)
         t.start()
 
     def reset_barcode_info(self):
         self.barcode_info = None
 
-
-    def show_info(self,data):
+    def show_info(self, data):
         self.reset_gui()
 
-        self.input_student_name.insert(0,f"{data['nombres']} {data['apellidos']}")
-        self.input_student_dni.insert(0,data['cedula'])
-        self.input_student_email.insert(0,data['email'])
-        self.input_student_career.insert(0,data['carrera'])
-        self.input_message_info.insert(0,"REGISTRO EXITOSO!")
+        self.input_student_name.insert(
+            0, f"{data['nombres']} {data['apellidos']}")
+        self.input_student_dni.insert(0, data['cedula'])
+        self.input_student_email.insert(0, data['email'])
+        self.input_student_career.insert(0, data['carrera'])
+        self.input_message_info.insert(0, "REGISTRO EXITOSO!")
         t = Timer(0.1, lambda: playsound("c:\\qr\\success.mp3"))
         t.start()
 
-
     def reset_gui(self):
-        
+
         self.input_student_name.delete(0, END)
         self.input_student_dni.delete(0, END)
         self.input_student_email.delete(0, END)
         self.input_student_career.delete(0, END)
-        self.input_message_info.delete(0,END)
+        self.input_message_info.delete(0, END)
 
     def open_camera(self):
 
@@ -198,12 +204,12 @@ class MainApp:
     def set_styles(self):
         # Labs Buttons
         self.styles.configure("labs.TButton", font=(None, 20))
+        self.styles.configure("update.TButton", font=(None, 15))
 
     def set_site(self, site):
         self.reset_gui()
-        self.input_lab.delete(0,END)
+        self.input_lab.delete(0, END)
         self.input_lab.insert(0, site)
-
 
 
 MainApp()
