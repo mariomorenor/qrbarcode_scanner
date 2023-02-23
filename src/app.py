@@ -1,9 +1,13 @@
 from tkinter import *
-from tkinter import ttk, messagebox
+from tkinter import ttk
 import cv2
 from PIL import Image, ImageTk
 from pyzbar import pyzbar
 from threading import Timer
+import json
+import odoo
+from datetime import datetime, timedelta
+from playsound import playsound
 
 
 class MainApp:
@@ -11,8 +15,11 @@ class MainApp:
     window_width = 1000
     window_height = 700
     barcode_info = None
+    users = []
 
     def __init__(self) -> None:
+
+        self.users = odoo.get_users()
 
         self.main_window = Tk()
         self.main_window.bind('<Escape>', lambda e: self.main_window.quit())
@@ -39,7 +46,7 @@ class MainApp:
         self.input_lab = ttk.Entry(
             self.panel_data, font=('Arial', 20, 'normal'))
         self.input_lab.grid(row=0, column=1, sticky=EW)
-        self.input_lab.insert(0,"LABORATORIO 1")
+        self.input_lab.insert(0, "LABORATORIO 1")
         Label(self.panel_data, text="Nombre:", font=(
             'Arial', 25, 'bold'),).grid(row=1, column=0, sticky=E)
         self.input_student_name = ttk.Entry(
@@ -94,23 +101,52 @@ class MainApp:
         for barcode in barcodes:
             if not self.barcode_info or self.barcode_info != barcode.data.decode('utf-8'):
                 self.barcode_info = barcode.data.decode('utf-8')
-                self.register(self.barcode_info)
+                qr = True if 'usuario_id' in self.barcode_info else False
+                self.register(self.barcode_info, qr=qr)
 
         return frame
 
-    def register(self, info):
+    def register(self, info, qr=False):
+        self.reset_gui()
+        if qr:
+            info = info.replace("\'", "\"")
+            info = json.loads(info)
+            dni = info['usuario_id']
+        else:
+            dni = info[2:12]
+
+        for user in self.users:
+            if dni == user['id'] or dni == user['cedula']:
+                o = Timer(0.1, lambda: odoo.register_user({
+                    'fecha': (datetime.now() + timedelta(hours=5)).strftime("%Y-%m-%d %H:%M:%S"),
+                    'usuario_id': user['id'],
+                    'laboratorio': self.input_lab.get()
+                }))
+                o.start()
+                self.show_info(user)
+                break
         
-        print(info)
+        t = Timer(self.time_to_reset_gui, self.reset_barcode_info )
+        t.start()
 
-        self.input_message_info.delete(0,END)
+    def reset_barcode_info(self):
+        self.barcode_info = None
+
+
+    def show_info(self,data):
+        self.reset_gui()
+
+        self.input_student_name.insert(0,f"{data['nombres']} {data['apellidos']}")
+        self.input_student_dni.insert(0,data['cedula'])
+        self.input_student_email.insert(0,data['email'])
+        self.input_student_career.insert(0,data['carrera'])
         self.input_message_info.insert(0,"REGISTRO EXITOSO!")
-
-        t = Timer(self.time_to_reset_gui, self.reset_gui)
+        t = Timer(0.1, lambda: playsound("c:\\qr\\success.mp3"))
         t.start()
 
 
     def reset_gui(self):
-        self.barcode_info = None
+        
         self.input_student_name.delete(0, END)
         self.input_student_dni.delete(0, END)
         self.input_student_email.delete(0, END)
