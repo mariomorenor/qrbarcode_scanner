@@ -200,9 +200,10 @@ class MainApp:
         self.styles.configure("labs.TButton", font=(None, 20))
 
     def set_site(self, site):
-        self.input_lab.delete(0, END)
+        self.reset_gui()
+        self.input_lab.delete(0,END)
         self.input_lab.insert(0, site)
-        self.input_message_info.delete(0,END)
+
 
 
 MainApp()
