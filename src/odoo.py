@@ -1,9 +1,13 @@
 import xmlrpc.client
+import configparser
 
-url = "http://localhost:8069"
-db = "datos"
-username = 'bot_tecnico'
-password = "bot_tecnico"
+config = configparser.ConfigParser()
+config.read("c:\\qr\\config.ini")
+
+url = config['server']['host']
+db = config['server']['db']
+username = config['server']['user']
+password = config['server']['password']
 
 common = xmlrpc.client.ServerProxy("{}/xmlrpc/2/common".format(url))
 uid = common.authenticate(db, username, password, {})
