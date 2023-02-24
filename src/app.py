@@ -119,6 +119,8 @@ class MainApp:
             info = info.replace("\'", "\"")
             info = json.loads(info)
             dni = info['usuario_id']
+            self.input_lab.delete(0,END)
+            self.input_lab.insert(0,info['laboratorio'])
         else:
             dni = info[2:12]
 
@@ -127,7 +129,7 @@ class MainApp:
                 o = Timer(0.1, lambda: odoo.register_user({
                     'fecha': (datetime.now() + timedelta(hours=5)).strftime("%Y-%m-%d %H:%M:%S"),
                     'usuario_id': user['id'],
-                    'laboratorio': self.input_lab.get()
+                    'laboratorio': info['laboratorio'] if qr else self.input_lab.get()
                 }))
                 o.start()
                 self.show_info(user)
